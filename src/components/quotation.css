@@ -1,0 +1,6 @@
+.covers{
+    border-style: solid;
+    border: 3px inset rgb(84, 125, 239);
+    box-shadow: 10px 10px 10px 5px rgba(65, 96, 142, 0.2);
+  
+  }
