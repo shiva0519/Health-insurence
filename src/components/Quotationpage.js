@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import './quotation.css';
+import  './Profile.css';
 
 function Quotationpage() {
 
@@ -33,7 +34,8 @@ function Quotationpage() {
         }
 
     }
-    const [proceed, setProceed] = useState("");
+    const [proceed,setProceed]=useState("")
+   
 
     const [increment, setIncrement] = useState(2);
     // const [percentage, setPercentage] = useState()
@@ -83,16 +85,16 @@ function Quotationpage() {
                     <h1 className='display-8'>Quotation Details</h1>
                 </header>
             </div>
-            <div className='container-fluid border-3 '>
+            <div className='container border-3 '>
                 <div className='row p-3 mt-1 rounded-3'>
                     <div className='col-sm-4 m-2'>
                         <header className='mb-3'>Hello {values.firstname}</header>
                         <h4>Plan Type: {policyType}</h4>
                         <button className='btn btn-outline-secondary mt-2' onClick={handleEditClick}>Edit</button>
                     </div>
-                    <div className='col-sm-3 m-2 covers' style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(225, 255, 255, 0.2)', padding: '10px', borderRadius: '10px', height: "150px" }}>
+                    <div className='col-sm-3 m-2 covers ' id='profilebanner' style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(225, 255, 255, 0.2)', padding: '10px', borderRadius: '10px', height: "150px" }}>
                         <div className='row-12 p-3 mt-1 text-center'>
-                            <h3 className=' display-9 '> Insurence cover</h3>
+                            <h3 className=' display-9 text-light'> Insurence cover</h3>
                         </div>
                         <div className='row d-flex justify-content-center  ms-'>
                             <div className='col-3 d-flex justify-content-center'>
@@ -108,7 +110,7 @@ function Quotationpage() {
                         </div>
                     </div>
                     <div className='col-sm-1'></div>
-                    <div className='col-sm-3 covers m-2 ' style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '10px', borderRadius: '10px', height: "150px" }}>
+                    <div className='col-sm-3 covers m-2 text-light' id='profilebanner'  style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '10px', borderRadius: '10px', height: "150px" }}>
                         <div className='row'>
                             <div className='col-6'>
                                 <div className='row p-3 mt-1 text-center'>
@@ -116,7 +118,7 @@ function Quotationpage() {
                                 </div>
                                 <div className='row d-flex text-center  '>
                                     <div className='col'>
-                                        <button className='text-end btn btn-warning'>&#8377;{percentage_value}</button>
+                                        <button className='text-end btn btn-warning text-dark'>&#8377;{percentage_value}</button>
                                     </div>
 
                                 </div>

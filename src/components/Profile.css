@@ -1,0 +1,135 @@
+.sticker {
+    display: flex;
+    border-radius: px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding-left: 5px;
+  }
+  
+  .sticker-image {
+    width: 150px;
+    height: auto;
+    fill: #ff9900; /* Example color */
+  }
+  .welcome-message{
+    margin-left: 70px;
+    margin-top: 80px;;
+  }
+  .main{
+    width: min(80%,1100px);
+    background-color: #E8EEF3;
+    padding: 40px;
+    margin: 0 auto;
+    border-radius: 20px;
+    border: 2px solid #303030;
+  }
+  .block{
+    display: flex;
+    align-items: center;
+    gap:20px;
+    justify-content: flex-end;
+    width:100%;
+  }
+  .card{
+    height: auto;
+    border-radius: 15px;
+    background-color: #fcfcfc;
+    display: flex;
+    align-items: center;
+    gap:10px;
+    border: 1px solid #dadada;
+    width:100%;
+    transition:.1s linear;
+    margin-top:20px;
+
+  }
+  /* Custom CSS for table styling */
+
+.card {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .table {
+    width: 100%;
+    margin-bottom: 0;
+    background-color: #fff; /* Set table background color */
+  }
+  
+  .table th,
+  .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9; /* Alternate row background color */
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: #f0f0f0; /* Hover effect background color */
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .table {
+      font-size: 14px; /* Reduce font size on smaller screens */
+    }
+  }
+  /* Custom CSS for UserProfileOffcanvas styling */
+
+.offcanvas-header {
+    background-color: #a3c4e8; /* Primary color for the header */
+    color: #fff; /* Text color for the header */
+  }
+  
+  .offcanvas-title {
+    color: #fff; /* Text color for the off-canvas title */
+  }
+  
+  .offcanvas-body {
+    padding: 20px; /* Padding within the off-canvas body */
+  }
+  
+  .text-muted {
+    color: #4d555c; /* Subdued text color */
+  }
+  
+  .text-primary {
+    color: #ceacf4; /* Primary theme color */
+    font-weight: bold; /* Bold text for primary information */
+  }
+ 
+.body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0; /* Fallback background color */
+}
+#profileBackground{
+  
+    background-image: url(../components/images/page-turner.png);
+    background-size: cover;
+    height:auto;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255,255,255,0.1);
+    position: relative;
+    width: 100%;
+    background-attachment: fixed;
+    height: 100%;
+   }
+   #profilebanner{
+  
+    background-image: url(../components/images/sun-tornado.png);
+    background-size: cover;
+    height:auto;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255,255,255,0.1);
+   }
+  

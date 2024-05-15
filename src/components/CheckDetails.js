@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import './quotation.css'
@@ -8,7 +8,9 @@ function CheckDetails() {
 
     const location = useLocation();
     const { values, policyType, individual, checkboxvalues, increment, proceed, percentage_value, percentage_value2, percentage_value3, percentage_value4, percentage_value5 } = location.state;
-
+    let checkbox = checkboxvalues
+   
+    
     // const{state} = useLocation();
     //          const check= state.checkboxvalues;
 
@@ -16,7 +18,7 @@ function CheckDetails() {
     const handleInfo = () => {
         navigate("/Registration")
     }
-    let checkbox = checkboxvalues
+   
     let amount;
     if(percentage_value){
          amount=percentage_value;
@@ -33,6 +35,15 @@ function CheckDetails() {
 else if(percentage_value5){
     amount=percentage_value5;
 }
+const[data]=useState({
+    planType:policyType,
+    relationType:individual?individual:checkbox,
+    members:checkbox,
+    duration:proceed,
+    insurence_cover:increment,
+    intrest:amount
+  })
+  console.log(data.relationType+"oooo");
 
 
 
@@ -237,7 +248,7 @@ else if(percentage_value5){
                             <button className='btn btn-secondary' onClick={() => navigate("/Quotationpage", { state: { policyType, values, individual, checkboxvalues } })} >Back</button>
                         </div>
                         <div className='col-2 d-flex justify-content-start mt-3 mb-2'>
-                            <button className='btn btn-success' onClick={() => navigate("/Payment", { state: { policyType, values, individual, checkboxvalues,percentage_value, amount } })}>Proceed</button>
+                            <button className='btn btn-success' onClick={() => navigate("/Payment", { state: { policyType,data, values, individual, checkboxvalues,percentage_value, amount } })}>Proceed</button>
                         </div>
                     </div>
 

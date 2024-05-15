@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import './App.css'
 import { useNavigate } from "react-router-dom";
+
 import pic from "./images/loginbackground.png";
 import Modal from "react-modal"
 import RegisterPage from './Registration'
+import axios from 'axios';
+import Loading from '../components/Loding';
 
 
 
@@ -12,14 +15,21 @@ function Loginpage() {
 
     const s = "remember me";
     let navigate = useNavigate();
+    const[loginerror,setloginerror]=useState();
+    const [isLoading, setIsLoading] = useState(false);
+
+    
+    
     const nameregex = /^[A-Za-z]{3,15}$/;
     const passwordregex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     const handleClick = () => {
-        navigate("/Healthinsurence");
+        
+          navigate("/Healthinsurence");
+       
     }
 
-
+    const [values,setvalues] = useState({});
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
     const openModal = () => {
@@ -29,16 +39,23 @@ function Loginpage() {
     const closeModal = () => {
         setModalIsOpen(false);
     };
+    const handleReturnToFirstPage=(formdata)=>{
+       
+        console.log(formdata.firstname+"data data data");
+        setvalues(formdata);
+
+        closeModal(); 
+    }
 
 
-    const [values, setvalues] = useState({ uname: "", upassword: "" })
+    const [values1, setvalues1] = useState({ username: "", userpassword: "" })
     const [errorvalues, seterrorvalues] = useState({ uname: "", upassword: "" })
 
     const handlechange = (e) => {
         console.log(e.target)
         const { name, value } = e.target;
 
-        setvalues({ ...values, [name]: value })
+        setvalues1({ ...values1, [name]: value })
 
         if (name === 'username' && !value.match(nameregex)) {
             return seterrorvalues({ ...errorvalues, [name]: "Enter a valid name" })
@@ -54,13 +71,39 @@ function Loginpage() {
         }
 
     }
+    console.log(values.firstname+"   7")
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (nameregex.test(values.uname) && passwordregex.test(values.upassword)) {
-            document.write("submited")
-        }
+
+        setIsLoading(true);
+        setTimeout(() => {
+            axios.post('http://localhost:9090/Loginpage/add',values1)
+            .then(response => {
+                // Handle successful response
+                console.log('Response from backend:', response.data);
+                // You can do something with the response here, such as redirecting the user or updating the UI
+                if(response.data==="Login successfully"){
+                    alert("login succesfully")
+                    navigate("/Profile",{state:{ values1 }});
+                }
+                else if(response.data==="Invalid credentials" || response.data==="User not found"){
+                    setloginerror("invalid user name or password");
+                    setIsLoading(false)
+                }
+                else{
+                    setloginerror("");
+                }
+                
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+            });
+        }, 2000); 
+        
     }
+  
+   
 
     return (
         <div className='container-fluid'>
@@ -80,6 +123,7 @@ function Loginpage() {
                 <div className='col-sm-8 p-5 rounded-4'>
                     <div className="container-fluid d-flex justify-content-center">
                         <input type="button" class="btn btn-primary" value="Health-Insurence"  onClick={handleClick}/>
+                        {isLoading && <Loading text="Loading....."/>}
                         <div className=''>
                         <Modal className=''
                             isOpen={modalIsOpen}
@@ -91,13 +135,15 @@ function Loginpage() {
                                 },
                                 content: {
                                     width: '70%', 
-                                    height: '70%', 
+                                    height: '100%', 
                                     margin: 'auto', 
                                 },
                             }}
                         >
+                             
                             <button onClick={closeModal} className='btn btn-danger border-0' id="btn-danger">X</button>
-                            <RegisterPage/> {/* Render your RegisterPage component inside the modal */}
+                            <RegisterPage onReturnToFirstPage={handleReturnToFirstPage}/>
+                            {/* Render your RegisterPage component inside the modal */}
                         </Modal>
                         </div>
                     </div>
@@ -108,6 +154,7 @@ function Loginpage() {
                             <div class=" row-12 text-center text-light mb-3 ">
                                 <h3 className='text-light display-9 '> User Login</h3>
                             </div>
+                            <span>{loginerror}</span>
                             <div class=" row text-center ">
                                 <div className='col-sm-12  mb-3 d-flex justify-content-center'>
                                     <input type="text"
@@ -116,7 +163,7 @@ function Loginpage() {
                                         class="form-control"
                                         placeholder="Enter username"
                                         onChange={handlechange}
-                                        value={values.uname}
+                                        value={values1.uname}
                                     /></div>
                             </div>
                             {/* <span style={{ color: "red" }}>{errorvalues.uname}</span> */}
@@ -127,7 +174,7 @@ function Loginpage() {
                                         id='Lpass'
                                         class="form-control"
                                         placeholder="Enter password"
-                                        value={values.upassword}
+                                        value={values1.upassword}
                                         onChange={handlechange}
                                     /></div>
                             </div>
@@ -145,7 +192,7 @@ function Loginpage() {
                                     <input type="button" class="btn btn-success" value="Register"  onClick={openModal}/>
                                 </div>
                                 <div className='col-6 d-flex justify-content-end'>
-                                    <input type="submit" class="btn btn-success" value="Submit" />
+                                    <input type="submit" class="btn btn-success" value="Login"  onClick={handleSubmit} />
                                 </div>
                               
                             </div>

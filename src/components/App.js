@@ -6,6 +6,8 @@ import Quotationpage from './Quotationpage';
 import CheckDetails from './CheckDetails';
 import Payment from './Payment';
 import Healthinsurence from './Healthinsurence';
+import Profile from "./Profile";
+
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -22,6 +24,7 @@ function App() {
           <Route path='/CheckDetails' element={< CheckDetails/>}></Route>
           <Route path='/Payment' element={< Payment/>}></Route>
           <Route path='/Healthinsurence' element={< Healthinsurence/>}></Route>
+          <Route path='/Profile' element={<Profile/>}></Route>
         </Routes>
       </Router>
 
