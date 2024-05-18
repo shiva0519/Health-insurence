@@ -17,6 +17,7 @@ function Loginpage() {
     let navigate = useNavigate();
     const[loginerror,setloginerror]=useState();
     const [isLoading, setIsLoading] = useState(false);
+    const vara="gddhy"
 
     
     

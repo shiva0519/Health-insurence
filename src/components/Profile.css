@@ -132,4 +132,9 @@
     backdrop-filter: blur(10px);
     background-color: rgba(255,255,255,0.1);
    }
+   /* Custom CSS to remove outline */
+.text-primary[contentEditable="true"]:focus {
+  outline: none;
+}
+
   

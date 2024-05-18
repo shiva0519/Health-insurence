@@ -15,6 +15,9 @@ function Profile() {
   const [values, setValues] = useState({});
   const [policyvalues, setPolicyValues] = useState({});
 
+  const [editMode, setEditMode] = useState(false);
+
+
   const location = useLocation();
   const { values1 } = location.state;
   console.log(values1.username + "8888888888888888888888");
@@ -58,6 +61,34 @@ function Profile() {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+  };
+
+  const handleContentChange = (key, newValue) => {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [key]: newValue
+    }));
+  };
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:9090/register/user/update/${values.email}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(values)
+      });
+      // Handle successful response (e.g., show success message)
+      console.log('User details updated successfully');
+      setEditMode(false); // Exit edit mode after saving
+    } catch (error) {
+      console.error('Error updating user details:', error);
+    }
+  };
+
+
+  const handleEditClick = () => {
+    setEditMode(true);
   };
 
   return (
@@ -169,7 +200,17 @@ function Profile() {
               <h6 className="text-muted">Name</h6>
             </div>
             <div className="col-8">
-              <h6 className="text-primary">{values.firstname}</h6>
+              {/* <h6 className="text-primary">{values.firstname}</h6> */}
+              {editMode ? (
+            <h6
+              className="text-primary editable"
+              contentEditable
+              onBlur={(e) => handleContentChange('firstname', e.target.innerText)}
+              dangerouslySetInnerHTML={{ __html: values.firstname }}
+            />
+          ) : (
+            <h6 className="text-primary">{values.firstname}</h6>
+          )}
             </div>
           </div>
           <div className="row mb-3">
@@ -212,6 +253,13 @@ function Profile() {
               <h6 className="text-primary">{values.maritual}</h6>
             </div>
           </div>
+          <div className="row mb-3 text-center ms-5">
+            <div className="col-4 ms-5">
+        <button className="btn btn-primary" onClick={editMode ? handleSave : handleEditClick}>
+          {editMode ? 'Save' : 'Edit'}
+        </button>
+        </div>
+      </div>
         </div>
       </div>
     </div>
