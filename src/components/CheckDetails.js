@@ -7,7 +7,7 @@ import './quotation.css'
 function CheckDetails() {
 
     const location = useLocation();
-    const { values, policyType, individual, checkboxvalues, increment, proceed, percentage_value, percentage_value2, percentage_value3, percentage_value4, percentage_value5 } = location.state;
+    const { values, policyType, individual, checkboxvalues,familyMembers, increment, proceed, percentage_value, percentage_value2, percentage_value3, percentage_value4, percentage_value5 } = location.state;
     let checkbox = checkboxvalues
    
     
@@ -18,6 +18,7 @@ function CheckDetails() {
     const handleInfo = () => {
         navigate("/Registration")
     }
+    console.log(familyMembers.children+"familymembers")
    
     let amount;
     if(percentage_value){
@@ -37,7 +38,7 @@ else if(percentage_value5){
 }
 const[data]=useState({
     planType:policyType,
-    relationType:individual?individual:checkbox,
+    relationType:individual?individual:checkboxvalues.join(", "),
     members:checkbox,
     duration:proceed,
     insurence_cover:increment,
@@ -129,50 +130,6 @@ const[data]=useState({
                         </div>
 
                     </div>
-                    {/* <div className=' container col-sm-5 covers rounded w- h-25 '>
-
-                        <div className='row d-flex mb-3 text-light p-2 '>
-                            <div className='col-sm-12 bg-secondary text-warning text-center pt-1 mb-3'>
-                                <h4 className=''>Your Plan Details</h4>
-                            </div>
-                            
-
-                        </div>
-                        <div className='row d-flex '>
-                            <div className='col-sm-8 mb-3'>
-                                <h5>Duration</h5>
-                            </div>
-                            <div className='col-sm-4'>
-                                <h5>: {proceed}Years
-
-                                </h5>
-                            </div>
-                            <div className='col-sm-8 mb-3'>
-                                <h5>Insurence Cover</h5>
-                            </div>
-                            <div className='col-sm-4'>
-                                <h5>: &#8377;{increment}L
-
-                                </h5>
-                            </div>
-                            <div className='col-sm-8'>
-                                <h5>Interest</h5>
-                            </div>
-                            <div className='col-sm-4'>
-                                <h5>: &#8377;{percentage_value}
-                                    {percentage_value2}
-                                    {percentage_value3}
-                                    {percentage_value4}
-                                    {percentage_value5}
-                                </h5>
-                            </div>
-                            <div className='col d-flex justify-content-center mt-3 mb-2'>
-                            <button className='btn btn-secondary'onClick={()=>navigate("/Quotationpage",{state:{policyType,values,individual}})} >Edit</button>
-                            </div>
-                        </div>
-
-                    </div> */}
-
                 </div>
                 <div className=' row container-fluid mb-5 mt-5'>
                     <div className='col-sm-12 '>
@@ -198,7 +155,8 @@ const[data]=useState({
                                 <h5>Relation type</h5>
                             </div>
                             <div className='col-sm-5'>
-                                <h5>: {individual}{checkbox}</h5>
+                               
+            <h5>: {checkboxvalues.join(", ")}{individual}</h5>
                             </div>
                         </div>
                     </div>

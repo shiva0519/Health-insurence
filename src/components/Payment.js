@@ -121,6 +121,7 @@ import { useLocation } from 'react-router-dom';
 import logo from './images/logoo.png';
 import axios from 'axios';
 import HealthinsurenceService from './HealthinsurenceService';
+import { useState } from 'react';
 
 
 // import HealthinsurenceService from '../components/HealthinsurenceService'
@@ -129,11 +130,17 @@ import HealthinsurenceService from './HealthinsurenceService';
 
 function Payment() {
     const location = useLocation();
-    const { data,values,amount } = location.state; // Destructure the required data from location state
+    const { data,values,amount,familyMembers,individual,checkboxvalues,} = location.state; // Destructure the required data from location state
+
+    const [selectedPayment, setSelectedPayment] = useState('');
+    const handlePaymentChange = (event) => {
+       
+        setSelectedPayment(event.target.value);
+      };
 
     const handleClick = async () => {
-        const { planType, relationType, members, duration, intrest, insurence_cover } = data;
-
+        const { planType, relationType, members,familyMembers, duration, intrest, insurence_cover } = data;
+    
         const options = {
             key: 'rzp_test_Su4WV4zdBIGTmZ',
             amount: amount * 100, // Amount in paise (e.g., 1000 paise = ₹10)
@@ -149,10 +156,12 @@ function Payment() {
                 color: '#d87988'
             },
             handler: async function (response) {
+                const relationType = planType === 'individual' ? individual : (checkboxvalues ? checkboxvalues.join(', ') : '');
+
                 const paymentData = {
                     userId: response.razorpay_payment_id,
                     planType,
-                    relationType: data.relationType.join(', '),
+                    relationType: relationType,
                     duration:duration+" Years",
                     insurence_cover:`\u20B9${data.insurence_cover}`+"L",
                     intrest:`\u20B9${data.intrest}`,
@@ -178,27 +187,42 @@ function Payment() {
     };
 
     return (
-        <div className='container'>
-            <div className='row'>
-                <div className='col-sm-4'>
-                    <label>Select Payment Type</label>
-                </div>
-                <div className='col-sm-6 '>
-                    <input type='radio' name='option' value='Razor_Pay' />
-                    <label htmlFor='Razor_pay'>Razor_Pay</label>
-                    <input type='radio' name='option' value='card' disabled />
-                    <label htmlFor='card'>Card</label>
-                </div>
+        <div>
+          <div className='row'>
+            <div className='col-sm-4'>
+              <label>Select Payment Type</label>
             </div>
-            <div className='row'>
-                <div className='col-2 d-flex justify-content-start mt-3 mb-2'>
-                    <button className='btn btn-success' onClick={handleClick}>
-                        Proceed
-                    </button>
-                </div>
+            <div className='col-sm-6 '>
+              <input
+                type='radio'
+                name='option'
+                value='Razor_Pay'
+                onChange={handlePaymentChange}
+              />
+              <label htmlFor='Razor_Pay'>Razor_Pay</label>
+              <input
+                type='radio'
+                name='option'
+                value='card'
+                disabled
+                onChange={handlePaymentChange}
+              />
+              <label htmlFor='card'>Card</label>
             </div>
+          </div>
+          <div className='row'>
+            <div className='col-2 d-flex justify-content-start mt-3 mb-2'>
+              <button
+                className='btn btn-success'
+                onClick={handleClick}
+                disabled={selectedPayment !== 'Razor_Pay'}
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      );
 }
 
 export default Payment;

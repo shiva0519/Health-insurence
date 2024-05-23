@@ -12,19 +12,24 @@ function PolicyDetails() {
   const { values1 } = location.state;
   
   const[values,setvalues]=useState({});
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const handleDateChange = (e) => {
+    setDateOfBirth(e.target.value);
+};
 
 
-  const today = new Date();
+
+
   console.log(values1.username+"iiiiiiiiiiiiii");
 
-  const [selectedDate, setSelectedDate] = useState("");
+
   const [policyType, setPolicyType] = useState("");
 
   const [familyMembers, setFamilyMembers] = useState({
     mother: false,
     father: false,
-    daughter: false,
-    son: false,
+    children: ""
+    
   });
   const [individual, setIndividual] = useState();
 
@@ -33,43 +38,51 @@ function PolicyDetails() {
     setIndividual(value);
   };
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const defaultDate = new Date();
-    // defaultDate.setFullYear(currentDate.getFullYear() - 2);
-    // const formattedDefaultDate = defaultDate.toISOString().split("T")[0];
-    // setSelectedDate(formattedDefaultDate);
-  }, []);
-  const handlePolicyTypeChange = (e) => {
-    let type = e.target.value;
-    console.log(e.target.value);
-    setPolicyType(type);
-    console.log(policyType);
+  const [checkboxvalues, setCheckboxValues] = useState([]);
 
-    // Reset family members selection when changing policy type
+  const handlePolicyTypeChange = (e) => {
+    const type = e.target.value;
+    setPolicyType(type);
     if (type !== "family") {
       setFamilyMembers({
         mother: false,
         father: false,
-        daughter: false,
-        son: false,
+        children: ""
       });
+      setCheckboxValues([]);
     }
   };
-  const [checkboxvalues, setCheckboxvalues] = useState([]);
+
+  const handleChildrenCountChange = (e) => {
+    const { name } = e.target;
+    setFamilyMembers(prevState => {
+      const currentCount = parseInt(prevState.children.split(" ")[1] || 0, 10);
+      const newCount = name === "add1" ? currentCount + 1 : currentCount - 1;
+      const newChildren = newCount > 0 ? `children ${newCount}` : "";
+      setCheckboxValues(prevValues => {
+        const filteredValues = prevValues.filter(item => !item.startsWith("children"));
+        return newChildren ? [...filteredValues, newChildren] : filteredValues;
+      });
+      return {
+        ...prevState,
+        children: newChildren,
+      };
+    });
+  };
 
   const handleFamilyMemberChange = (e) => {
     const { name, checked } = e.target;
-    if (checked) {
-      setFamilyMembers({ ...familyMembers, [name]: checked });
-      setCheckboxvalues((prevValues) => [...prevValues, name]);
-      console.log(checkboxvalues + ": checkbox");
-      console.log(checkboxvalues + ": checkbox");
+    if (name === "children") {
+      if (checked) {
+        setFamilyMembers({ ...familyMembers, children: "children 1" });
+        setCheckboxValues(prevValues => [...prevValues, "children 1"]);
+      } else {
+        setFamilyMembers({ ...familyMembers, children: "" });
+        setCheckboxValues(prevValues => prevValues.filter(item => !item.startsWith("children")));
+      }
     } else {
       setFamilyMembers({ ...familyMembers, [name]: checked });
-      setCheckboxvalues((prevValues) =>
-        prevValues.filter((item) => item !== name)
-      );
+      setCheckboxValues(prevValues => checked ? [...prevValues, name] : prevValues.filter(item => item !== name));
     }
   };
 
@@ -96,7 +109,7 @@ function PolicyDetails() {
   let navigate = useNavigate();
   const handlesub = (e) => {
     e.preventDefault();
-    if (policyType === "family" && checkboxvalues.length > 0) {
+    if (policyType === "family" && checkboxvalues.length > 0 && dateOfBirth != null) {
       navigate("/Quotationpage", {
         state: {
           policyType,
@@ -106,7 +119,7 @@ function PolicyDetails() {
           checkboxvalues,
         },
       });
-    } else if (policyType === "individual") {
+    } else if (policyType === "individual" && individual != null && dateOfBirth != null) {
       navigate("/Quotationpage", {
         state: {
           policyType,
@@ -144,7 +157,7 @@ function PolicyDetails() {
           </div>
           <div className="row m-2">
             <div className="col-sm-12">
-              <h3 className="display-5">Heloo {values.firstname}</h3>
+              <h3 className="display-5">Hello {values.firstname}</h3>
             </div>
           </div>
           <div className="row m-2 d-flex justify-content-center">
@@ -216,7 +229,7 @@ function PolicyDetails() {
                     Father
                   </label>
                   <br />
-                  <label className="">
+                  {/* <label className="">
                     <input
                       type="checkbox"
                       name="daughter"
@@ -248,40 +261,41 @@ function PolicyDetails() {
                         </button>
                       </span>
                     )}
-                  </label>
-                  <br />
+                  </label> */}
+                 
                   <label>
                     <input
                       type="checkbox"
-                      name="son"
-                      value={familyMembers.son}
-                      checked={familyMembers.son}
+                      name="children"
+                      value={familyMembers.children}
+                      checked={Boolean(familyMembers.children)}
                       onChange={handleFamilyMemberChange}
                     />
-                    Son{" "}
-                    {familyMembers.son === true && (
-                      <span className="form-check-sm ms-5 ">
+                    Children{" "}
+                    
+                    {Boolean(familyMembers.children) && (
+                      <span className="form-check-sm ms-5">
                         <button
-                          onClick={handleclickinc}
+                          onClick={handleChildrenCountChange}
                           className="form-control-sm border-0"
                           name="sub1"
-                          value={increment.sub1}
+                          disabled={parseInt(familyMembers.children.split(" ")[1], 10) <= 1}
                         >
                           -
                         </button>
                         <button className="form-control-sm border-0">
-                          {increment.add1}
+                          {familyMembers.children.split(" ")[1]}
                         </button>
                         <button
-                          onClick={handleclickinc}
+                          onClick={handleChildrenCountChange}
                           className="form-control-sm border-0"
                           name="add1"
-                          value={increment.add1}
                         >
                           +
                         </button>
                       </span>
                     )}
+
                   </label>
                   <br />
                 </div>
@@ -337,10 +351,11 @@ function PolicyDetails() {
                   <select
                     name="individual"
                     className="form-control-sm w-100"
-                    required
                     value={individual}
                     id="poliselect"
                     onChange={handleIndividualTypeChange}
+                    required
+                    
                   >
                     <option value="">-Select option-</option>
                     <option value="father">Father</option>
@@ -354,7 +369,7 @@ function PolicyDetails() {
             </div>
           </div>
           <div className="row m-2  d-flex justify-content-center">
-            <div className="col-sm-5">
+            {/* <div className="col-sm-5">
               <label>Date Of Birth :</label>
             </div>
             <div className="col-sm-5">
@@ -367,7 +382,22 @@ function PolicyDetails() {
                 // max={today.toISOString().split("T")[0]}
                 name="date"
               />
-            </div>
+            </div> */}
+            <div className="col-sm-5">
+        <label>Date of Birth (Your father's DOB):</label>
+    </div>
+    <div className="col-sm-5">
+        <input
+            type="date"
+            className="form-control"
+            id="dobField"
+            name="dateOfBirth"
+            min="1900-01-01"
+            max="2004-12-31"
+            value={dateOfBirth}
+            onChange={handleDateChange}
+        />
+    </div>
           </div>
           <div className="row m-2  d-flex justify-content-center">
             <div className="col-sm-4">

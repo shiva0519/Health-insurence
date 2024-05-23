@@ -90,7 +90,7 @@ function Quotationpage() {
                     <div className='col-sm-4 m-2'>
                         <header className='mb-3'>Hello {values.firstname}</header>
                         <h4>Plan Type: {policyType}</h4>
-                        <button className='btn btn-outline-secondary mt-2' onClick={handleEditClick}>Edit</button>
+                        {/* <button className='btn btn-outline-secondary mt-2' onClick={handleEditClick}>Edit</button> */}
                     </div>
                     <div className='col-sm-3 m-2 covers ' id='profilebanner' style={{ backdropFilter: 'blur(5px)', backgroundColor: 'rgba(225, 255, 255, 0.2)', padding: '10px', borderRadius: '10px', height: "150px" }}>
                         <div className='row-12 p-3 mt-1 text-center'>

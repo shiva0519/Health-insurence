@@ -45,7 +45,25 @@ function Registration({ onReturnToFirstPage }) {
   const Visibility = () => {
     setShowPassword(!showPassword);
   };
+  const [error, setError] = useState('');
 
+  const handleBlur = async () => {
+    const response = await fetch(`http://localhost:9090/register/CheckMail/${values.email}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: values.email }),
+    });
+    const data = await response.json();
+    console.log(data+"response")
+
+    if (data===true) {
+      setError("This mail alreay registerd ,please Login!");
+    } else {
+      setError('');
+    }
+  };
   const validate = (e) => {
     const { name, value } = e.target;
     console.log(e.target);
@@ -84,6 +102,7 @@ function Registration({ onReturnToFirstPage }) {
     e1.preventDefault();
 
     if (
+      !error &&
       fnameregex.test(values.firstname) &&
       phnumber_regex.test(values.contactNo) &&
       emailregex.test(values.email)&&
@@ -163,6 +182,7 @@ function Registration({ onReturnToFirstPage }) {
                   value={values.firstname}
                   onChange={validate}
                   onKeyPress={numeric2}
+                  required
                 />
 
                 <span style={{ color: "red" }}>{errorvalues.firstname}</span>
@@ -181,8 +201,11 @@ function Registration({ onReturnToFirstPage }) {
                   name="email"
                   value={values.email}
                   onChange={validate}
+                  onBlur={handleBlur}
+                  required
                 />
                 <br />
+                <span style={{ color: 'red' }}>{error}</span>
                 <span style={{ color: "red" }}>{errorvalues.email}</span>
               </div>
             </div>
@@ -204,6 +227,7 @@ function Registration({ onReturnToFirstPage }) {
                                     Minimum length of 8 characters."
                     value={values.password}
                     onChange={validate}
+                    required
                   />
                   <button
                     className="btn btn-outline-secondary border-dark form-control-sm "
@@ -233,6 +257,7 @@ function Registration({ onReturnToFirstPage }) {
                   value={values.contactNo}
                   onChange={validate}
                   onKeyPress={numeric}
+                  required
                 />
                 <br />
                 <span style={{ color: "red" }}>{errorvalues.contactNo}</span>
@@ -253,6 +278,7 @@ function Registration({ onReturnToFirstPage }) {
                   max="2075-01-01"
                   value={values.dateofbirth}
                   onChange={validate}
+                  required
                 />
                 <span style={{ color: "red" }}>{errorvalues.dateofbirth}</span>
               </div>
@@ -270,6 +296,7 @@ function Registration({ onReturnToFirstPage }) {
                   value={values.gender}
                   onChange={validate}
                   className="form-control-sm w-100"
+                  required
                 >
                   <option value="">-select gender-</option>
                   <option value="male">Male</option>
@@ -289,6 +316,7 @@ function Registration({ onReturnToFirstPage }) {
                   className="form-control form-control-sm "
                   placeholder="Address"
                   name="address"
+                  required
                 />
               </div>
             </div>

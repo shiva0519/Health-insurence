@@ -17,6 +17,37 @@ function Profile() {
 
   const [editMode, setEditMode] = useState(false);
 
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    
+    const mobileno = 7286094568; // Assume values1.username contains the mobile number
+    const otp = generateOtp(6); // Generate a 6-digit OTP
+
+    const proxyUrl = `http://localhost:9090/register/sendOtp?mobileno=${mobileno}&otp=${otp}`;
+    try {
+      const response = await axios.get(proxyUrl);
+      console.log('SMS Response:', response.data);
+      // Handle the response as needed
+      if (response.data.status==='success') {
+          alert("OTP sent successfully");
+      } else {
+          alert("Failed to send OTP");
+      }
+  } catch (error) {
+      console.error('Error sending OTP:', error);
+  }
+};
+
+const generateOtp = (length) => {
+    const characters = '0123456789';
+    let otp = '';
+    for (let i = 0; i < length; i++) {
+        const index = Math.floor(Math.random() * characters.length);
+        otp += characters.charAt(index);
+    }
+    return otp;
+};
+
 
   const location = useLocation();
   const { values1 } = location.state;
@@ -259,6 +290,9 @@ function Profile() {
           {editMode ? 'Save' : 'Edit'}
         </button>
         </div>
+      </div>
+      <div>
+        <button className="btn btn-warning" onClick={handleSendOtp}>send</button>
       </div>
         </div>
       </div>

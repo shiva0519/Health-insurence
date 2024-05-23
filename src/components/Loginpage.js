@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import './App.css'
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +15,7 @@ function Loginpage() {
 
     const s = "remember me";
     let navigate = useNavigate();
+    const[payemntdetails,setPaymentdetails]=useState({});
     const[loginerror,setloginerror]=useState();
     const [isLoading, setIsLoading] = useState(false);
     const vara="gddhy"
@@ -23,14 +24,19 @@ function Loginpage() {
     
     const nameregex = /^[A-Za-z]{3,15}$/;
     const passwordregex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const [values,setvalues] = useState({});
+    // console.log(values)
+
 
     const handleClick = () => {
         
           navigate("/Healthinsurence");
        
     }
+    
 
-    const [values,setvalues] = useState({});
+   
+
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
     const openModal = () => {
@@ -72,40 +78,51 @@ function Loginpage() {
         }
 
     }
-    console.log(values.firstname+"   7")
-
-    const handleSubmit = (e) => {
+    
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
         setIsLoading(true);
-        setTimeout(() => {
-            axios.post('http://localhost:9090/Loginpage/add',values1)
-            .then(response => {
-                // Handle successful response
-                console.log('Response from backend:', response.data);
-                // You can do something with the response here, such as redirecting the user or updating the UI
-                if(response.data==="Login successfully"){
-                    alert("login succesfully")
-                    navigate("/Profile",{state:{ values1 }});
+
+        try {
+            // First API call to get customer details by email
+            const policyResponse = await axios.get(
+                `http://localhost:9090/payment/getCustomerDetailsByMail/${values1.username}`
+            );
+
+            const data = policyResponse.data;
+            setPaymentdetails(data);
+            console.log('Payment details:', data);
+
+            // Second API call to login
+            const loginResponse = await axios.post('http://localhost:9090/Loginpage/add', values1);
+
+            // Handle successful response
+            console.log('Response from backend:', loginResponse.data);
+
+            if (loginResponse.data === "Login successfully") {
+                alert("Login successfully");
+
+                // Navigate based on payment details
+                if (data.length>0) {
+                    navigate("/Profile", { state: { values1, paymentDetails: data } });
+                } else {
+                    navigate("/PolicyDetails", { state: {  values1 } });
                 }
-                else if(response.data==="Invalid credentials" || response.data==="User not found"){
-                    setloginerror("invalid user name or password");
-                    setIsLoading(false)
-                }
-                else{
-                    setloginerror("");
-                }
-                
-            })
-            .catch(error => {
-                console.error('Error submitting form:', error);
-            });
-        }, 2000); 
-        
-    }
+            } else if (loginResponse.data === "Invalid credentials" || loginResponse.data === "User not found") {
+                setloginerror("Invalid username or password");
+            } else {
+                seterrorvalues("");
+            }
+        } catch (error) {
+            console.error('Error during the process:', error);
+            setloginerror("An unexpected error occurred. Please try again later.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+  
   
    
-
     return (
         <div className='container-fluid'>
             <div className='row  text-light p-3 login '>
@@ -190,7 +207,7 @@ function Loginpage() {
 
                             <div className='row mt-2 d-flex justify-content-center'>
                             <div className='col-6 d-flex justify-content-start'>
-                                    <input type="button" class="btn btn-success" value="Register"  onClick={openModal}/>
+                                    <input type="button" class="btn btn-success" value="New User"  onClick={openModal}/>
                                 </div>
                                 <div className='col-6 d-flex justify-content-end'>
                                     <input type="submit" class="btn btn-success" value="Login"  onClick={handleSubmit} />
