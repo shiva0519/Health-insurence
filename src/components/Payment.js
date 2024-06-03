@@ -137,6 +137,25 @@ function Payment() {
        
         setSelectedPayment(event.target.value);
       };
+      const triggerBardeenWebhook = async (paymentData) => {
+        try {
+            // Trigger Bardeen webhook for email confirmation
+            await axios.post('YOUR_BARDEEN_WEBHOOK_URL', {
+                email: values.email,
+                name: values.firstname,
+                paymentId: paymentData.userId,
+                amount: amount,
+                planType: data.planType,
+                relationType: paymentData.relationType,
+                duration: data.duration,
+                insurence_cover: data.insurence_cover,
+                intrest: data.intrest,
+            });
+            console.log('Bardeen webhook triggered successfully');
+        } catch (error) {
+            console.error('Error triggering Bardeen webhook:', error);
+        }
+    };
 
     const handleClick = async () => {
         const { planType, relationType, members,familyMembers, duration, intrest, insurence_cover } = data;

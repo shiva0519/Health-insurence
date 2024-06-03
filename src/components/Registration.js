@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCheck } from "react-icons/fa";
 import axios from "axios";
-
+import {
+  handleSendOtp,
+  handleOtpVerification,
+  handleEmailOtp,
+  handleEmailOtpVerification,
+} from "../components/otpFunctions";
+import { Modal, Button } from "react-bootstrap";
 import "./App.css";
 
 function Registration({ onReturnToFirstPage }) {
@@ -11,6 +17,21 @@ function Registration({ onReturnToFirstPage }) {
   const phnumber_regex = /^[6-9]{1}[0-9]{9}$/;
   const emailregex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
+
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [enteredOtp, setEnteredOtp] = useState("");
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isPhoneNumberVerified, setIsPhoneNumberVerified] = useState(false);
+
+  const [showEmailOtpModal, setShowEmailOtpModal] = useState(false);
+  const [isEmailOtpVerified, setIsEmailOtpVerified] = useState(false);
+  const [emailEnteredOtp, setEmailEnteredOtp] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(false);
 
   let navigate = useNavigate();
 
@@ -21,144 +42,210 @@ function Registration({ onReturnToFirstPage }) {
     dateofbirth: "",
     gender: "",
     contactNo: "",
-    Address: "",
+    address: "",
     email: "",
     maritual: "",
   };
-  const initiall_errorvalues = {
+
+  const initial_error_values = {
     firstname: "",
     lastname: "",
     password: "",
     dateofbirth: "",
     gender: "",
     contactNo: "",
-    Address: "",
+    address: "",
     email: "",
-    maritual: "",
+    marital: "",
   };
-  const [values, setvalues] = useState(starting_value);
-  const [errorvalues, seterrorvalues] = useState(initiall_errorvalues);
-  // const firstname=values.firstname
-  // const marital=values.maritual
 
-  const [showPassword, setShowPassword] = useState(false);
-  const Visibility = () => {
-    setShowPassword(!showPassword);
+  const [values, setValues] = useState(starting_value);
+  const [errorValues, setErrorValues] = useState(initial_error_values);
+
+  useEffect(() => {
+    setIsPhoneNumberVerified(false);
+  }, [values.contactNo]);
+
+  useEffect(() => {
+    setIsEmailOtpVerified(false);
+    setIsEmailValid(false);
+  }, [values.email]);
+
+  const handleOtp = async () => {
+    const num = values.contactNo;
+
+    const generatedOtp = await handleSendOtp(num);
+
+    if (generatedOtp) {
+      setShowOtpModal(true);
+      setIsOtpVerified(false);
+      setOtp(generatedOtp);
+    }
   };
-  const [error, setError] = useState('');
+
+  const EmailOtp = async () => {
+    const useremail = values.email;
+
+    const generatedEmailOtp = await handleEmailOtp(useremail);
+    setEmailOtp(generatedEmailOtp);
+    console.log(generatedEmailOtp + "genarated emailotp");
+    if (generatedEmailOtp) {
+      setShowEmailOtpModal(true);
+      setIsEmailOtpVerified(false);
+      setEmailOtp(generatedEmailOtp);
+    }
+  };
+
+  const handleOtpSubmit = (e) => {
+    e.preventDefault();
+    const isVerified = handleOtpVerification(enteredOtp, otp);
+    if (isVerified) {
+      setIsOtpVerified(true);
+      setShowOtpModal(false);
+      setIsPhoneNumberVerified(true);
+      setEnteredOtp("");
+    } else {
+      setIsOtpVerified(false);
+      alert("Wrong OTP. Please try again.");
+    }
+    setEnteredOtp("");
+  };
+
+  const handleEmailOtpSubmit = (e) => {
+    e.preventDefault();
+    console.log(emailEnteredOtp + " 88888 " + emailOtp);
+
+    const isVerified = handleEmailOtpVerification(emailEnteredOtp, emailOtp);
+    if (isVerified) {
+      setIsEmailOtpVerified(true);
+      setShowEmailOtpModal(false);
+      setEmailEnteredOtp("");
+    } else {
+      setIsEmailOtpVerified(false);
+      alert("Wrong OTP. Please try again.");
+    }
+    setEmailEnteredOtp("");
+  };
 
   const handleBlur = async () => {
-    const response = await fetch(`http://localhost:9090/register/CheckMail/${values.email}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: values.email }),
-    });
-    const data = await response.json();
-    console.log(data+"response")
+    try {
+      const response = await fetch(
+        `http://localhost:9090/register/CheckMail/${values.email}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: values.email }),
+        }
+      );
+      const data = await response.json();
 
-    if (data===true) {
-      setError("This mail alreay registerd ,please Login!");
-    } else {
-      setError('');
+      if (data === true) {
+        setError("This email is already registered, please login!");
+        setIsEmailValid(false);
+      } else {
+        setError("");
+        setIsEmailValid(true);
+      }
+    } catch (error) {
+      setError("Enter a valid email.");
+      setIsEmailValid(false);
     }
   };
+
   const validate = (e) => {
     const { name, value } = e.target;
-    console.log(e.target);
-    setvalues({ ...values, [name]: value });
+    setValues({ ...values, [name]: value });
 
     if (name === "firstname" && !value.match(fnameregex)) {
-      return seterrorvalues({ ...errorvalues, [name]: "enter a valid name" });
-    } else if (name === "dateofbirth" && !value.match(dobRegex)) {
-      return seterrorvalues({ ...errorvalues, [name]: "invalid date" });
-    } else if (name === "dateofbirth" && new Date(value) >= new Date()) {
-      return seterrorvalues({
-        ...errorvalues,
-        [name]: "invalid date of Birth",
+      return setErrorValues({ ...errorValues, [name]: "Enter a valid name" });
+    } else if (
+      name === "dateofbirth" &&
+      (!value.match(dobRegex) || new Date(value) >= new Date())
+    ) {
+      return setErrorValues({
+        ...errorValues,
+        [name]: "Invalid date of birth",
       });
     } else if (name === "contactNo" && !value.match(phnumber_regex)) {
-      return seterrorvalues({
-        ...errorvalues,
-        [name]: "enter a valid phone number",
+      return setErrorValues({
+        ...errorValues,
+        [name]: "Enter a valid phone number",
       });
     } else if (name === "email" && !value.match(emailregex)) {
-      return seterrorvalues({ ...errorvalues, [name]: "enter a valid Email" });
+      return setErrorValues({ ...errorValues, [name]: "Enter a valid email" });
     } else if (name === "password" && !value.match(password_regex)) {
-      return seterrorvalues({
-        ...errorvalues,
+      return setErrorValues({
+        ...errorValues,
         [name]:
-          "At least one alphabetical character." +
-          "At least one digit." +
-          "Minimum length of 8 characters.",
+          "Password must contain at least one letter, one digit, and be between 8-15 characters long.",
       });
     } else {
-      return seterrorvalues({ ...errorvalues, [name]: "" });
+      return setErrorValues({ ...errorValues, [name]: "" });
     }
   };
 
-  const handlesubmit = (e1) => {
-    e1.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
     if (
       !error &&
       fnameregex.test(values.firstname) &&
       phnumber_regex.test(values.contactNo) &&
-      emailregex.test(values.email)&&
-      password_regex.test(values.password)&&
+      emailregex.test(values.email) &&
+      password_regex.test(values.password) &&
       values.dateofbirth &&
-      values.gender
-
-    ){
-     
+      values.gender &&
+      isOtpVerified &&
+      isEmailOtpVerified
+    ) {
       navigate("/", { state: { values } });
 
-    axios
-      .post("http://localhost:9090/register/addregister", values)
-      .then((response) => {
-        // Handle successful response
-        console.log("Response from backend:", response.data);
-        // You can do something with the response here, such as redirecting the user or updating the UI
-      })
-      .catch((error) => {
-        console.error("Error submitting form:", error);
-      });
-    onReturnToFirstPage(values);
+      axios
+        .post("http://localhost:9090/register/addregister", values)
+        .then((response) => {
+          console.log("Response from backend:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error submitting form:", error);
+        });
+      onReturnToFirstPage(values);
     }
   };
-  const numeric = (event) => {
+
+  const handleNumericInput = (event) => {
     const inputChar = String.fromCharCode(event.charCode);
-
-    const numericRegex = /^[0-9]*$/; // Regular expression to match only numeric values
-    // Allow numeric characters (0-9) and control keys like backspace and delete
-
     if (
-      !numericRegex.test(inputChar) &&
+      !/^[0-9]*$/.test(inputChar) &&
       event.charCode !== 0 &&
       event.charCode !== 8
     ) {
-      event.preventDefault(); // Prevent the default action (i.e., typing the character)
+      event.preventDefault();
     }
   };
-  const numeric2 = (event) => {
+
+  const handleAlphabeticInput = (event) => {
     const inputChar = String.fromCharCode(event.charCode);
-    const fnameregex1 = /^[A-Za-z\s]+(?:[ \s.][A-Za-z]+)*$/;
-    // Regular expression to match only numeric values
-    // Allow numeric characters (0-9) and control keys like backspace and delete
     if (
-      !fnameregex1.test(inputChar) &&
+      !/^[A-Za-z\s]+$/.test(inputChar) &&
       event.charCode !== 0 &&
       event.charCode !== 8
     ) {
-      event.preventDefault(); // Prevent the default action (i.e., typing the character)
+      event.preventDefault();
+    }
+  };
+
+  const preventEnterSubmission = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
     }
   };
 
   return (
     <div className="container">
       <div className="row justify-content-center">
-        <div className="col-sm-10 ">
+        <div className="col-sm-10 p-1">
           <div className="container-fluid bg-primary text-light p-1">
             <header className="text-center">
               <h1 className="display-8">Registration Form</h1>
@@ -166,193 +253,278 @@ function Registration({ onReturnToFirstPage }) {
           </div>
           <br />
 
-          <form onSubmit={handlesubmit} className="form-control">
-            <div className="row m-2 d-flex justify-content-center">
+          <form onSubmit={handleSubmit} className="form-control">
+            <div className="row m-1 d-flex justify-content-center">
               <div className="col-sm-4">
-                <label> Name :</label>
+                <label>Name:</label>
               </div>
-              <div className="col-sm-6 ">
+              <div className="col-sm-6">
                 <input
                   type="text"
                   className="form-control-sm w-100"
-                  placeholder="enter a valid name"
+                  placeholder="Enter a valid name"
                   name="firstname"
                   maxLength={30}
-                  title="it contains only alphabets space & dot"
+                  title="Name contains only alphabets"
                   value={values.firstname}
                   onChange={validate}
-                  onKeyPress={numeric2}
+                  onKeyPress={handleAlphabeticInput}
+                  onKeyDown={preventEnterSubmission}
                   required
                 />
-
-                <span style={{ color: "red" }}>{errorvalues.firstname}</span>
-              </div>
-            </div>
-            <br />
-            <div className="row m-1 d-flex justify-content-center">
-              <div className="col-sm-4">
-                <label>E-mail :</label>
-              </div>
-              <div className="col-sm-6">
-                <input
-                  type="text"
-                  className="form-control-sm w-100"
-                  placeholder="enter a valid email"
-                  name="email"
-                  value={values.email}
-                  onChange={validate}
-                  onBlur={handleBlur}
-                  required
-                />
-                <br />
-                <span style={{ color: 'red' }}>{error}</span>
-                <span style={{ color: "red" }}>{errorvalues.email}</span>
-              </div>
-            </div>
-            <br />
-            <div className="row m-1 d-flex justify-content-center">
-              <div className="col-sm-4">
-                <label>Password :</label>
-              </div>
-              <div className="col-sm-6">
-                <div className="input-group">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control-sm "
-                    style={{ width: "86%", borderRight: "none" }}
-                    placeholder="enter password"
-                    name="password"
-                    title="At least one alphabetical character.
-                                    At least one digit.
-                                    Minimum length of 8 characters."
-                    value={values.password}
-                    onChange={validate}
-                    required
-                  />
-                  <button
-                    className="btn btn-outline-secondary border-dark form-control-sm "
-                    style={{ borderLeft: "none" }}
-                    type="button"
-                    onClick={Visibility}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-                <br />
-                <span style={{ color: "red" }}>{errorvalues.password}</span>
-              </div>
-            </div>
-            <br />
-            <div className="row m-1 d-flex justify-content-center">
-              <div className="col-sm-4">
-                <label>Phone Number :</label>
-              </div>
-              <div className="col-sm-6">
-                <input
-                  type="text"
-                  className=" form-control-sm rounded w-100 "
-                  placeholder="enter phone number"
-                  name="contactNo"
-                  maxLength={10}
-                  value={values.contactNo}
-                  onChange={validate}
-                  onKeyPress={numeric}
-                  required
-                />
-                <br />
-                <span style={{ color: "red" }}>{errorvalues.contactNo}</span>
+                <span style={{ color: "red" }}>{errorValues.firstname}</span>
               </div>
             </div>
             <br />
 
             <div className="row m-1 d-flex justify-content-center">
               <div className="col-sm-4">
-                <label>Date of Birth :</label>
+                <label>Date Of Birth:</label>
               </div>
               <div className="col-sm-6">
                 <input
                   type="date"
                   className="form-control-sm w-100"
+                  placeholder="Enter valid birthdate"
                   name="dateofbirth"
-                  min="1975-01-01"
-                  max="2075-01-01"
                   value={values.dateofbirth}
                   onChange={validate}
+                  onKeyDown={preventEnterSubmission}
                   required
                 />
-                <span style={{ color: "red" }}>{errorvalues.dateofbirth}</span>
+                <span style={{ color: "red" }}>{errorValues.dateofbirth}</span>
               </div>
             </div>
             <br />
 
             <div className="row m-1 d-flex justify-content-center">
               <div className="col-sm-4">
-                <label>Gender :</label>
+                <label>Contact Number:</label>
+              </div>
+              <div className="col-sm-6 d-flex">
+                <input
+                  type="text"
+                  className="form-control-sm w-100"
+                  placeholder="Enter valid mobile number"
+                  name="contactNo"
+                  maxLength={10}
+                  title="Phone number should contain 10 digits"
+                  value={values.contactNo}
+                  onChange={validate}
+                  onKeyPress={handleNumericInput}
+                  onKeyDown={preventEnterSubmission}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={handleOtp}
+                  disabled={isPhoneNumberVerified}
+                >
+                  {isPhoneNumberVerified ? (
+                    <FaCheck style={{ color: "green" }} />
+                  ) : (
+                    "Send OTP"
+                  )}
+                </button>
+                <span style={{ color: "red" }}>{errorValues.contactNo}</span>
+              </div>
+            </div>
+            <br />
+
+            <div className="row m-1 d-flex justify-content-center">
+              <div className="col-sm-4">
+                <label>Email:</label>
+              </div>
+              <div className="col-sm-6 d-flex">
+                <input
+                  type="email"
+                  className="form-control-sm w-100"
+                  placeholder="Enter valid email"
+                  name="email"
+                  value={values.email}
+                  onChange={validate}
+                  onBlur={handleBlur}
+                  // onKeyDown={preventEnterSubmission}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={EmailOtp}
+                  disabled={!isEmailValid || isEmailOtpVerified}
+                >
+                  {isEmailOtpVerified ? (
+                    <FaCheck style={{ color: "green" }} />
+                  ) : (
+                    "Send OTP"
+                  )}
+                </button>
+                <span style={{ color: "red" }}>{errorValues.email}</span>
+                <span style={{ color: "red" }}>{error}</span>
+              </div>
+            </div>
+            <br />
+
+            {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
+
+            <div className="row m-1 d-flex justify-content-center">
+              <div className="col-sm-4">
+                <label>Password:</label>
               </div>
               <div className="col-sm-6">
-                <select
-                  name="gender"
-                  id="genders"
-                  value={values.gender}
-                  onChange={validate}
-                  className="form-control-sm w-100"
-                  required
-                >
-                  <option value="">-select gender-</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="others">Others</option>
-                </select>
+                <div className="input-group">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-control-sm w-100"
+                    placeholder="Enter password"
+                    name="password"
+                    value={values.password}
+                    onChange={validate}
+                    onKeyDown={preventEnterSubmission}
+                    required
+                  />
+                  <span
+                    className="password-toggle-icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
+                </div>
+                <span style={{ color: "red" }}>{errorValues.password}</span>
               </div>
             </div>
             <br />
 
             <div className="row m-1 d-flex justify-content-center">
               <div className="col-sm-4">
-                <label>Address :</label>
+                <label>Address:</label>
               </div>
               <div className="col-sm-6">
                 <textarea
-                  className="form-control form-control-sm "
-                  placeholder="Address"
+                  className="form-control-sm w-100"
+                  placeholder="Enter your address"
                   name="address"
+                  value={values.address}
+                  onChange={validate}
+                  onKeyDown={preventEnterSubmission}
                   required
                 />
               </div>
             </div>
             <br />
+
             <div className="row m-1 d-flex justify-content-center">
               <div className="col-sm-4">
-                <label>marital_status :</label>
+                <label>Marital Status:</label>
               </div>
               <div className="col-sm-6">
-                <select
-                  name="maritual"
-                  id="marital_status"
-                  className="form-control form-control-sm "
-                  required
-                  value={values.maritual}
-                  onChange={validate}
-                >
-                  <option value="">-Select Marital Status-</option>
-                  <option value="single">Single</option>
-                  <option value="married">Married</option>
-                </select>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="maritual"
+                    value="single"
+                    checked={values.maritual === "single"}
+                    onChange={validate}
+                    required
+                  />
+                  <label className="form-check-label">Single</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="maritual"
+                    value="married"
+                    checked={values.maritual === "married"}
+                    onChange={validate}
+                    required
+                  />
+                  <label className="form-check-label">Married</label>
+                </div>
               </div>
             </div>
             <br />
-            <div class="row">
-              <div class="col-sm-12 d-flex justify-content-center">
-                <input
-                  type="submit"
-                  class="btn btn-primary btn-block w-50"
-                  id="btnn"
-                  value="Register"
-                />
+
+            <div className="row m-1 d-flex justify-content-center">
+              <div className="col-sm-4">
+                <label>Gender:</label>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="gender"
+                    value="male"
+                    checked={values.gender === "male"}
+                    onChange={validate}
+                    required
+                  />
+                  <label className="form-check-label">Male</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="gender"
+                    value="female"
+                    checked={values.gender === "female"}
+                    onChange={validate}
+                    required
+                  />
+                  <label className="form-check-label">Female</label>
+                </div>
               </div>
             </div>
+            <br />
 
-            <div />
+            <div className="d-flex justify-content-center">
+              <button type="submit" className="btn btn-primary">
+                Submit
+              </button>
+            </div>
+            <br />
+
+            <Modal show={showOtpModal} onHide={() => setShowOtpModal(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Enter OTP</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <form onSubmit={handleOtpSubmit}>
+                  <input
+                    type="text"
+                    value={enteredOtp}
+                    onChange={(e) => setEnteredOtp(e.target.value)}
+                    required
+                  />
+                  <Button variant="primary" type="submit">
+                    Verify
+                  </Button>
+                </form>
+              </Modal.Body>
+            </Modal>
+
+            <Modal
+              show={showEmailOtpModal}
+              onHide={() => setShowEmailOtpModal(false)}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Enter Email OTP</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <form onSubmit={handleEmailOtpSubmit}>
+                  <input
+                    type="text"
+                    value={emailEnteredOtp}
+                    onChange={(e) => setEmailEnteredOtp(e.target.value)}
+                    required
+                  />
+                  <Button variant="primary" type="submit">
+                    Verify
+                  </Button>
+                </form>
+              </Modal.Body>
+            </Modal>
           </form>
         </div>
       </div>
