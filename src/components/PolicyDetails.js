@@ -131,13 +131,13 @@ function PolicyDetails() {
       });
     }
   };
-  axios.get(`http://localhost:9090/register/getById/${values1.username}`)
+  axios.get(`http://192.168.1.48:9090/register/getById/${values1.username}`)
   .then(response => {
       // Handle successful response
       console.log('Response from backend:', response.data);
       // You can do something with the response here, such as redirecting the user or updating the UI
       setvalues(response.data);
-      
+       
   })
   .catch(error => {
       console.error('Error submitting form:', error);

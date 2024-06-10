@@ -86,7 +86,7 @@ function Loginpage() {
         try {
             // First API call to get customer details by email
             const policyResponse = await axios.get(
-                `http://localhost:9090/payment/getCustomerDetailsByMail/${values1.username}`
+                `http://192.168.1.48:9090/payment/getCustomerDetailsByMail/${values1.username}`
             );
 
             const data = policyResponse.data;
@@ -94,7 +94,7 @@ function Loginpage() {
             console.log('Payment details:', data);
 
             // Second API call to login
-            const loginResponse = await axios.post('http://localhost:9090/Loginpage/add', values1);
+            const loginResponse = await axios.post('http://192.168.1.48:9090/Loginpage/add', values1);
 
             // Handle successful response
             console.log('Response from backend:', loginResponse.data);
@@ -140,7 +140,7 @@ function Loginpage() {
             <div className='row  p-3 mt-1 rounded-3' id="loginform" >
                 <div className='col-sm-8 p-5 rounded-4'>
                     <div className="container-fluid d-flex justify-content-center">
-                        <input type="button" class="btn btn-primary" value="Health-Insurence"  onClick={handleClick}/>
+                        <input type="button" class="btn btn-primary" value="Health-Insurance"  onClick={handleClick}/>
                         {isLoading && <Loading text="Loading....."/>}
                         <div className=''>
                         <Modal className=''

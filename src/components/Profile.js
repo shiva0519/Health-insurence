@@ -10,7 +10,6 @@ import { handleEmailOtp } from "../components/otpFunctions";
 import "./Profile.css";
 
 function Profile() {
-  const [values, setValues] = useState({});
   const [policyvalues, setPolicyValues] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [otpMode, setOtpMode] = useState(false);
@@ -27,28 +26,38 @@ function Profile() {
   const [generatedEmailOtp, setGeneratedEmailOtp] = useState("");
 
   const location = useLocation();
-  const { values1 } = location.state;
+  const initialValues1 = location.state?.values1 || JSON.parse(localStorage.getItem('values1')) || {};
+  const [values1, setValues1] = useState(initialValues1);
+  const [values, setValues] = useState({});
+  
+
+ 
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const registerResponse = await axios.get(
-          `http://localhost:9090/register/getById/${values1.username}`
+          `http://192.168.1.48:9090/register/getById/${values1.username}`
         );
         setValues(registerResponse.data);
         console.log(values.email+"this is values");
 
         const paymentResponse = await axios.get(
-          `http://localhost:9090/payment/getCustomerDetailsByMail/${values1.username}`
+          `http://192.168.1.48:9090/payment/getCustomerDetailsByMail/${values1.username}`
+          
         );
+        console.log(values.username+"edee raa ");
         setPolicyValues(paymentResponse.data);
+        console.log(policyvalues+"policy values::::::::::")
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
-    fetchData();
-  }, [values1.username]);
+    if (values1.username) {
+      fetchData();
+    }
+  }, [values1.username, values.email]);
 
   const generateOtp = (length) => {
     const characters = "0123456789";
@@ -84,7 +93,7 @@ function Profile() {
     // const otp = generateOtp(6);
     // setGeneratedEmailOtp(otp);
 
-    const proxyUrl = `http://localhost:9090/register/sendEmail/${useremail}`;
+    const proxyUrl = `http://192.168.1.48:9090/register/sendEmail/${useremail}`;
     try {
       const response = await axios.post(proxyUrl);
       if (response.data) {
@@ -103,7 +112,7 @@ function Profile() {
     if (otp === generatedOtp) {
       try {
         await axios.put(
-          `http://localhost:9090/register/user/update/${values.email}`,
+          `http://192.168.1.48:9090/register/user/update/${values.email}`,
           {
             ...values,
             contactNo: newPhoneNumber,
@@ -121,30 +130,31 @@ function Profile() {
       }
     } else {
       alert("Invalid OTP");
+      setOtp("");
+
     }
+    setOtp("");
+
   };
 
   const handleEmailOtpSubmit = async () => {
     if (emailOtp === generatedEmailOtp) {
       try {
         await axios.put(
-          `http://localhost:9090/register/user/update-email?oldEmail=${values.email}&newEmail=${newEmail}`,
+          `http://192.168.1.48:9090/register/user/update/${values.email}`,
           {
-            oldEmail: values.email,
-            newEmail: newEmail,
-            firstname: values.firstname,
-            password: values.password,
-            contactNo: values.contactNo,
-            dateofbirth: values.dateofbirth,
-            gender: values.gender,
-            address: values.address,
-            maritual: values.maritual,
+            ...values,
+            email:newEmail
           }
         );
         alert("Email updated successfully");
         setValues((prevValues) => ({
           ...prevValues,
           email: newEmail,
+        }));
+        setValues1((prevValues1) => ({
+          ...prevValues1,
+          username: newEmail,
         }));
         setEmailOtpMode(false);
         setEmailEditMode(false);
@@ -154,7 +164,10 @@ function Profile() {
       }
     } else {
       alert("Invalid Email OTP");
+      setEmailOtp("");
     }
+    setEmailOtp("");
+
   };
 
   const handleContentChange = (key, newValue) => {
@@ -167,7 +180,7 @@ function Profile() {
   const handleSave = async () => {
     try {
       await axios.put(
-        `http://localhost:9090/register/user/update/${values.email}`,
+        `http://192.168.1.48:9090/register/user/update/${values.email}`,
         values
       );
       alert("Details updated successfully");
@@ -222,6 +235,7 @@ function Profile() {
     } else {
       setNewPhoneNumberError("Enter a valid phone number");
     }
+
   };
 
   const handleVerifyEmail = () => {
@@ -230,6 +244,7 @@ function Profile() {
     } else {
       setEmailError("Enter a valid email");
     }
+
   };
 
   let navigate = useNavigate();
@@ -416,6 +431,7 @@ function Profile() {
                   type="text"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
                   placeholder="Enter OTP"
                 />
                 <button
@@ -473,6 +489,7 @@ function Profile() {
                   type="email"
                   value={emailOtp}
                   onChange={(e) => setEmailOtp(e.target.value)}
+                  maxLength={6}
                   placeholder="Enter OTP"
                 />
                 <button

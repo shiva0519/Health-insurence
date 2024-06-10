@@ -15,7 +15,7 @@ export const generateOtp = (length = 6) => {
 // Function to handle sending OTP
 export const handleSendOtp = async (mobileno) => {
   const otp = generateOtp(6);
-  const proxyUrl = `http://localhost:9090/register/sendOtp?mobileno=${mobileno}&otp=${otp}`;
+  const proxyUrl = `http://192.168.1.48:9090/register/sendOtp?mobileno=${mobileno}&otp=${otp}`;
 
   try {
     const response = await axios.get(proxyUrl);
@@ -32,7 +32,7 @@ export const handleSendOtp = async (mobileno) => {
 };
 export const handleEmailOtp = async (email) => {
  
-  const emailUrl = `http://localhost:9090/register/sendEmail/${email}`;
+  const emailUrl = `http://192.168.1.48:9090/register/sendEmail/${email}`;
 
   try {
     const response = await axios.post(emailUrl);

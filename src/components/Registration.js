@@ -9,7 +9,7 @@ import {
   handleEmailOtpVerification,
 } from "../components/otpFunctions";
 import { Modal, Button } from "react-bootstrap";
-import "./App.css";
+// import "./App.css";
 
 function Registration({ onReturnToFirstPage }) {
   const fnameregex = /^[A-Za-z]+(?:[ \s.][A-Za-z]+)*$/;
@@ -130,7 +130,7 @@ function Registration({ onReturnToFirstPage }) {
   const handleBlur = async () => {
     try {
       const response = await fetch(
-        `http://localhost:9090/register/CheckMail/${values.email}`,
+        `http://192.168.1.48:9090/register/CheckMail/${values.email}`,
         {
           method: "POST",
           headers: {
@@ -157,6 +157,7 @@ function Registration({ onReturnToFirstPage }) {
   const validate = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
+    
 
     if (name === "firstname" && !value.match(fnameregex)) {
       return setErrorValues({ ...errorValues, [name]: "Enter a valid name" });
@@ -200,10 +201,10 @@ function Registration({ onReturnToFirstPage }) {
       isOtpVerified &&
       isEmailOtpVerified
     ) {
-      navigate("/", { state: { values } });
+      // navigate("/", { state: { values } });
 
       axios
-        .post("http://localhost:9090/register/addregister", values)
+        .post("http://192.168.1.48:9090/register/addregister", values)
         .then((response) => {
           console.log("Response from backend:", response.data);
         })
@@ -495,6 +496,7 @@ function Registration({ onReturnToFirstPage }) {
                     type="text"
                     value={enteredOtp}
                     onChange={(e) => setEnteredOtp(e.target.value)}
+                    maxLength={6}
                     required
                   />
                   <Button variant="primary" type="submit">
@@ -516,6 +518,7 @@ function Registration({ onReturnToFirstPage }) {
                   <input
                     type="text"
                     value={emailEnteredOtp}
+                    maxLength={6}
                     onChange={(e) => setEmailEnteredOtp(e.target.value)}
                     required
                   />
